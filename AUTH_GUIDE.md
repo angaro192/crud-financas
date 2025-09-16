@@ -74,16 +74,22 @@ Authorization: Bearer <your_jwt_token>
 
 ## Protected Routes
 
-All financial transaction endpoints now require authentication:
-- `POST /financial-transactions`
-- `GET /financial-transactions`
-- `GET /financial-transactions/stats`
-- `GET /financial-transactions/:id`
-- `PUT /financial-transactions/:id`
-- `PATCH /financial-transactions/:id`
-- `DELETE /financial-transactions/:id`
+Todos os endpoints agora exigem autenticação JWT e só permitem acesso aos dados do usuário autenticado:
 
-To access these endpoints, include the JWT token in the Authorization header:
+### Financial Transaction Endpoints (Protected)
+- `POST /financial-transactions` - Criar transação (associada ao usuário logado)
+- `GET /financial-transactions` - Listar transações (apenas do usuário logado)
+- `GET /financial-transactions/stats` - Estatísticas (apenas do usuário logado)
+- `GET /financial-transactions/:id` - Buscar transação específica (apenas se pertencer ao usuário)
+- `PUT /financial-transactions/:id` - Atualizar transação (apenas se pertencer ao usuário)
+- `PATCH /financial-transactions/:id` - Atualização parcial (apenas se pertencer ao usuário)
+- `DELETE /financial-transactions/:id` - Deletar transação (apenas se pertencer ao usuário)
+
+### User Management Endpoints (Protected)
+- `GET /users` - Listar todos os usuários
+- `POST /users` - Criar novo usuário (funcionalidade admin)
+
+Para acessar estes endpoints, inclua o token JWT no cabeçalho Authorization:
 ```
 Authorization: Bearer <your_jwt_token>
 ```
@@ -146,13 +152,16 @@ Invoke-RestMethod -Uri "http://localhost:3333/financial-transactions" -Method PO
 }
 ```
 
-## Security Features
+## Recursos de Segurança
 
-- Passwords are hashed using bcrypt with salt rounds of 10
-- JWT tokens expire after 7 days
-- Email uniqueness is enforced at database level
-- Input validation using Zod schemas
-- Type-safe implementation with TypeScript
+- Senhas são hash usando bcrypt com 10 salt rounds
+- Tokens JWT expiram após 7 dias
+- Unicidade de email é garantida no nível do banco de dados
+- Validação de entrada usando esquemas Zod
+- Implementação type-safe com TypeScript
+- **Isolamento de dados**: Cada usuário só pode acessar suas próprias transações financeiras
+- **Relacionamento usuário-transação**: Todas as transações são associadas ao usuário que as criou
+- **Validação de propriedade**: Verificação automática se a transação pertence ao usuário autenticado
 
 ## Environment Variables
 

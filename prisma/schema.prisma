@@ -14,12 +14,13 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                     String                 @id @default(cuid())
+  name                   String?
+  email                  String                 @unique
+  password               String
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+  financialTransactions  FinancialTransaction[]
 }
 
 model FinancialTransaction {
@@ -28,6 +29,8 @@ model FinancialTransaction {
   empresa   String
   data      DateTime
   tipo      String   // "Despesa" or "Receita"
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

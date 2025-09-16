@@ -20,13 +20,15 @@ export class FinancialTransactionController {
   static async create(request: FastifyRequest, reply: FastifyReply) {
     try {
       const data = createFinancialTransactionSchema.parse(request.body) as CreateFinancialTransactionData;
+      const user = (request as any).user;
       
       const transaction = await prisma.financialTransaction.create({
         data: {
           valor: numberToDecimal(data.valor),
           empresa: data.empresa,
           data: new Date(data.data),
-          tipo: data.tipo
+          tipo: data.tipo,
+          userId: user.userId
         }
       });
 
@@ -36,6 +38,7 @@ export class FinancialTransactionController {
         empresa: transaction.empresa,
         data: transaction.data,
         tipo: transaction.tipo,
+        userId: transaction.userId,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt
       });
@@ -58,12 +61,15 @@ export class FinancialTransactionController {
   static async list(request: FastifyRequest, reply: FastifyReply) {
     try {
       const query = listFinancialTransactionsSchema.parse(request.query) as ListFinancialTransactionsQuery;
+      const user = (request as any).user;
       
       const { page, limit, tipo, empresa, startDate, endDate } = query;
       const skip = (page - 1) * limit;
 
-      // Build where clause for filtering
-      const where: any = {};
+      // Build where clause for filtering (only user's transactions)
+      const where: any = {
+        userId: user.userId  // Only show transactions for the authenticated user
+      };
       if (tipo) where.tipo = tipo;
       if (empresa) where.empresa = { contains: empresa, mode: 'insensitive' };
       if (startDate || endDate) {
@@ -88,6 +94,7 @@ export class FinancialTransactionController {
         empresa: transaction.empresa,
         data: transaction.data,
         tipo: transaction.tipo,
+        userId: transaction.userId,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt
       }));
@@ -120,9 +127,13 @@ export class FinancialTransactionController {
   static async getById(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string };
+      const user = (request as any).user;
 
       const transaction = await prisma.financialTransaction.findUnique({
-        where: { id }
+        where: { 
+          id,
+          userId: user.userId  // Only allow access to user's own transactions
+        }
       });
 
       if (!transaction) {
@@ -137,6 +148,7 @@ export class FinancialTransactionController {
         empresa: transaction.empresa,
         data: transaction.data,
         tipo: transaction.tipo,
+        userId: transaction.userId,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt
       });
@@ -153,10 +165,14 @@ export class FinancialTransactionController {
     try {
       const { id } = request.params as { id: string };
       const data = updateFinancialTransactionSchema.parse(request.body) as UpdateFinancialTransactionData;
+      const user = (request as any).user;
 
-      // Check if transaction exists
+      // Check if transaction exists and belongs to the user
       const existingTransaction = await prisma.financialTransaction.findUnique({
-        where: { id }
+        where: { 
+          id,
+          userId: user.userId  // Only allow access to user's own transactions
+        }
       });
 
       if (!existingTransaction) {
@@ -183,6 +199,7 @@ export class FinancialTransactionController {
         empresa: transaction.empresa,
         data: transaction.data,
         tipo: transaction.tipo,
+        userId: transaction.userId,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt
       });
@@ -205,10 +222,14 @@ export class FinancialTransactionController {
   static async delete(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string };
+      const user = (request as any).user;
 
-      // Check if transaction exists
+      // Check if transaction exists and belongs to the user
       const existingTransaction = await prisma.financialTransaction.findUnique({
-        where: { id }
+        where: { 
+          id,
+          userId: user.userId  // Only allow access to user's own transactions
+        }
       });
 
       if (!existingTransaction) {
@@ -234,10 +255,13 @@ export class FinancialTransactionController {
   static async getStats(request: FastifyRequest, reply: FastifyReply) {
     try {
       const query = request.query as any;
+      const user = (request as any).user;
       const { startDate, endDate, empresa } = query;
 
-      // Build where clause
-      const where: any = {};
+      // Build where clause (only user's transactions)
+      const where: any = {
+        userId: user.userId  // Only calculate stats for the authenticated user
+      };
       if (empresa) where.empresa = { contains: empresa, mode: 'insensitive' };
       if (startDate || endDate) {
         where.data = {};
