@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import type { FastifyRequest, FastifyReply } from 'fastify';
+import { isValidUUID } from '../utils/uuid';
 
 // JWT secret - in production, this should be in environment variables
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
@@ -34,6 +35,13 @@ export async function authMiddleware(request: FastifyRequest, reply: FastifyRepl
       iat: number;
       exp: number;
     };
+
+    // Validate that userId is a valid UUID
+    if (!isValidUUID(decoded.userId)) {
+      return reply.status(401).send({
+        error: 'Invalid token format - userId must be UUID'
+      });
+    }
 
     // Add user info to request
     request.user = {

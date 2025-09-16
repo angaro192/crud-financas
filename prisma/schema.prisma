@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id                     String                 @id @default(cuid())
+  id                     String                 @id @default(uuid()) @db.Uuid
   name                   String?
   email                  String                 @unique
   password               String
@@ -24,12 +24,12 @@ model User {
 }
 
 model FinancialTransaction {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid()) @db.Uuid
   valor     Decimal  @db.Decimal(15, 3) // Allows up to 3 decimal places
   empresa   String
   data      DateTime
   tipo      String   // "Despesa" or "Receita"
-  userId    String
+  userId    String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

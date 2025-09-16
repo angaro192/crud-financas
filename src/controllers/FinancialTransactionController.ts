@@ -12,6 +12,7 @@ import type {
   UpdateFinancialTransactionData,
   ListFinancialTransactionsQuery
 } from '../models/FinancialTransaction';
+import { isValidUUID } from '../utils/uuid';
 
 const prisma = new PrismaClient();
 
@@ -33,6 +34,7 @@ export class FinancialTransactionController {
       });
 
       return reply.status(201).send({
+        id: transaction.id,
         valor: decimalToNumber(transaction.valor),
         empresa: transaction.empresa,
         data: transaction.data,
@@ -87,6 +89,7 @@ export class FinancialTransactionController {
       ]);
 
       const formattedTransactions = transactions.map(transaction => ({
+        id: transaction.id,
         valor: decimalToNumber(transaction.valor),
         empresa: transaction.empresa,
         data: transaction.data,
@@ -125,6 +128,13 @@ export class FinancialTransactionController {
       const { id } = request.params as { id: string };
       const user = (request as any).user;
 
+      // Validate UUID format
+      if (!isValidUUID(id)) {
+        return reply.status(400).send({
+          error: 'Invalid transaction ID format. Expected UUID.'
+        });
+      }
+
       const transaction = await prisma.financialTransaction.findUnique({
         where: { 
           id,
@@ -139,6 +149,7 @@ export class FinancialTransactionController {
       }
 
       return reply.send({
+        id: transaction.id,
         valor: decimalToNumber(transaction.valor),
         empresa: transaction.empresa,
         data: transaction.data,
@@ -160,6 +171,13 @@ export class FinancialTransactionController {
       const { id } = request.params as { id: string };
       const data = updateFinancialTransactionSchema.parse(request.body) as UpdateFinancialTransactionData;
       const user = (request as any).user;
+
+      // Validate UUID format
+      if (!isValidUUID(id)) {
+        return reply.status(400).send({
+          error: 'Invalid transaction ID format. Expected UUID.'
+        });
+      }
 
       // Check if transaction exists and belongs to the user
       const existingTransaction = await prisma.financialTransaction.findUnique({
@@ -188,6 +206,7 @@ export class FinancialTransactionController {
       });
 
       return reply.send({
+        id: transaction.id,
         valor: decimalToNumber(transaction.valor),
         empresa: transaction.empresa,
         data: transaction.data,
@@ -215,6 +234,13 @@ export class FinancialTransactionController {
     try {
       const { id } = request.params as { id: string };
       const user = (request as any).user;
+
+      // Validate UUID format
+      if (!isValidUUID(id)) {
+        return reply.status(400).send({
+          error: 'Invalid transaction ID format. Expected UUID.'
+        });
+      }
 
       // Check if transaction exists and belongs to the user
       const existingTransaction = await prisma.financialTransaction.findUnique({

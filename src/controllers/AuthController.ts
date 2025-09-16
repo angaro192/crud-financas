@@ -3,6 +3,7 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
+import { isValidUUID } from '../utils/uuid';
 
 const prisma = new PrismaClient();
 
@@ -59,6 +60,7 @@ export class AuthController {
       return reply.status(201).send({
         message: 'User created successfully',
         user: {
+          id: user.id,
           name: user.name,
           email: user.email,
           createdAt: user.createdAt
@@ -120,6 +122,7 @@ export class AuthController {
       return reply.send({
         message: 'Login successful',
         user: {
+          id: user.id,
           name: user.name,
           email: user.email
         },
@@ -146,6 +149,13 @@ export class AuthController {
       // Get user from the authenticated request
       const user = (request as any).user;
 
+      // Validate UUID format
+      if (!isValidUUID(user.userId)) {
+        return reply.status(400).send({
+          error: 'Invalid user ID format'
+        });
+      }
+
       const userData = await prisma.user.findUnique({
         where: { id: user.userId },
         select: {
@@ -164,6 +174,7 @@ export class AuthController {
 
       return reply.send({
         user: {
+          id: userData.id,
           name: userData.name,
           email: userData.email,
           createdAt: userData.createdAt
