@@ -33,12 +33,10 @@ export class FinancialTransactionController {
       });
 
       return reply.status(201).send({
-        id: transaction.id,
         valor: decimalToNumber(transaction.valor),
         empresa: transaction.empresa,
         data: transaction.data,
         tipo: transaction.tipo,
-        userId: transaction.userId,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt
       });
@@ -89,12 +87,10 @@ export class FinancialTransactionController {
       ]);
 
       const formattedTransactions = transactions.map(transaction => ({
-        id: transaction.id,
         valor: decimalToNumber(transaction.valor),
         empresa: transaction.empresa,
         data: transaction.data,
         tipo: transaction.tipo,
-        userId: transaction.userId,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt
       }));
@@ -143,12 +139,10 @@ export class FinancialTransactionController {
       }
 
       return reply.send({
-        id: transaction.id,
         valor: decimalToNumber(transaction.valor),
         empresa: transaction.empresa,
         data: transaction.data,
         tipo: transaction.tipo,
-        userId: transaction.userId,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt
       });
@@ -194,12 +188,10 @@ export class FinancialTransactionController {
       });
 
       return reply.send({
-        id: transaction.id,
         valor: decimalToNumber(transaction.valor),
         empresa: transaction.empresa,
         data: transaction.data,
         tipo: transaction.tipo,
-        userId: transaction.userId,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt
       });

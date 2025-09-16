@@ -58,7 +58,11 @@ export class AuthController {
 
       return reply.status(201).send({
         message: 'User created successfully',
-        user,
+        user: {
+          name: user.name,
+          email: user.email,
+          createdAt: user.createdAt
+        },
         token
       });
 
@@ -116,7 +120,6 @@ export class AuthController {
       return reply.send({
         message: 'Login successful',
         user: {
-          id: user.id,
           name: user.name,
           email: user.email
         },
@@ -160,7 +163,11 @@ export class AuthController {
       }
 
       return reply.send({
-        user: userData
+        user: {
+          name: userData.name,
+          email: userData.email,
+          createdAt: userData.createdAt
+        }
       });
 
     } catch (error) {

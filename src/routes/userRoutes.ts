@@ -15,7 +15,6 @@ export async function userRoutes(fastify: FastifyInstance) {
     try {
       const users = await prisma.user.findMany({
         select: {
-          id: true,
           name: true,
           email: true,
           createdAt: true,
@@ -63,7 +62,6 @@ export async function userRoutes(fastify: FastifyInstance) {
           password: hashedPassword
         },
         select: {
-          id: true,
           name: true,
           email: true,
           createdAt: true
