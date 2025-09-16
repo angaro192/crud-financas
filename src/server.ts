@@ -2,10 +2,14 @@ import { PrismaClient } from '@prisma/client';
 import fastify from 'fastify';
 import { z } from 'zod';
 import { financialTransactionRoutes } from './routes/financialTransactionRoutes';
+import { authRoutes } from './routes/authRoutes';
 
 const app = fastify();
 
 const prisma = new PrismaClient();
+
+// Register authentication routes
+app.register(authRoutes);
 
 // Register financial transaction routes
 app.register(financialTransactionRoutes);
@@ -20,14 +24,20 @@ app.post('/users', async (request, reply) => {
     const createUserSchema = z.object({
         name: z.string(),
         email: z.string().email(),
+        password: z.string().min(6, 'Password must be at least 6 characters'),
     });
 
-    const { name, email } = createUserSchema.parse(request.body);
+    const { name, email, password } = createUserSchema.parse(request.body);
+
+    // Hash password before saving
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     await prisma.user.create({
       data: {
         name,
-        email
+        email,
+        password: hashedPassword
       },
     });
 

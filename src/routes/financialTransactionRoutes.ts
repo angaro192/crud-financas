@@ -1,7 +1,11 @@
 import type { FastifyInstance } from 'fastify';
 import { FinancialTransactionController } from '../controllers/FinancialTransactionController';
+import { authMiddleware } from '../middleware/authMiddleware';
 
 export async function financialTransactionRoutes(fastify: FastifyInstance) {
+  // Add authentication middleware to all financial transaction routes
+  fastify.addHook('preHandler', authMiddleware);
+  
   // Create a new financial transaction
   fastify.post('/financial-transactions', FinancialTransactionController.create);
 
