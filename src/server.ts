@@ -1,13 +1,9 @@
-import { PrismaClient } from '@prisma/client';
 import fastify from 'fastify';
-import { z } from 'zod';
 import { financialTransactionRoutes } from './routes/financialTransactionRoutes';
 import { authRoutes } from './routes/authRoutes';
 import { userRoutes } from './routes/userRoutes';
 
 const app = fastify();
-
-const prisma = new PrismaClient();
 
 // Register authentication routes
 app.register(authRoutes);
