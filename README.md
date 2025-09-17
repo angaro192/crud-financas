@@ -1,241 +1,286 @@
-# Financial Transactions API Documentation
+# 🤖 MyFinance - Sistema de Gestão Financeira Pessoal
 
-This API provides CRUD operations for managing financial transactions following the MVC pattern.
+> **⚠️ IMPORTANTE: Este projeto foi desenvolvido integralmente por Inteligência Artificial com o mínimo de review humano possível. O código foi gerado automaticamente e pode conter implementações que necessitam de revisão adicional para uso em produção.**
 
-## Base URL
-`http://localhost:3333`
+## 📋 Sobre o Projeto
 
-## Endpoints
+**MyFinance** é um sistema completo de gestão financeira pessoal desenvolvido para ajudar usuários a controlar suas receitas e despesas de forma segura e organizada. O sistema oferece funcionalidades robustas de autenticação, isolamento de dados por usuário e relatórios financeiros.
 
-### 1. Create Financial Transaction
-**POST** `/financial-transactions`
+### 🎯 Características Principais
 
-Creates a new financial transaction.
+- **Gestão de Transações Financeiras**: Controle completo de receitas e despesas
+- **Sistema de Autenticação JWT**: Segurança robusta com tokens de acesso
+- **Isolamento de Dados**: Cada usuário acessa apenas suas próprias informações
+- **API RESTful**: Interface bem estruturada seguindo padrões REST
+- **Validação de Dados**: Validação rigorosa com Zod em todos os endpoints
+- **Banco de Dados Relacional**: PostgreSQL com Prisma ORM
 
-**Request Body:**
-```json
+## 🛠️ Stack Tecnológica
+
+### Backend
+- **Runtime**: Node.js 18+
+- **Framework**: Fastify 5.x (alta performance)
+- **Linguagem**: TypeScript
+- **ORM**: Prisma 6.x
+- **Banco de Dados**: PostgreSQL
+- **Autenticação**: JWT (JSON Web Tokens)
+- **Criptografia**: bcrypt para senhas
+- **Validação**: Zod para esquemas de dados
+- **Testes**: Jest com TypeScript
+
+### Desenvolvimento
+- **Build Tool**: tsup
+- **Dev Server**: tsx
+- **Type Checking**: TypeScript 5.x
+
+## 🚀 Instalação e Configuração
+
+### Pré-requisitos
+
+- Node.js 18 ou superior
+- PostgreSQL
+- npm ou yarn
+
+### 1. Clone o Repositório
+
+```bash
+git clone <url-do-repositorio>
+cd myfinance
+```
+
+### 2. Instale as Dependências
+
+```bash
+npm install
+```
+
+### 3. Configuração do Banco de Dados
+
+1. Crie um banco PostgreSQL
+2. Configure a variável de ambiente `DATABASE_URL`:
+
+```bash
+# Crie um arquivo .env na raiz do projeto
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/myfinance"
+JWT_SECRET="sua-chave-secreta-jwt"
+```
+
+### 4. Execute as Migrações
+
+```bash
+npx prisma migrate dev
+```
+
+### 5. Gere o Cliente Prisma
+
+```bash
+npx prisma generate
+```
+
+## 🎮 Executando o Projeto
+
+### Desenvolvimento
+
+```bash
+npm run dev
+```
+
+O servidor estará disponível em `http://localhost:3333`
+
+### Produção
+
+```bash
+# Build do projeto
+npm run build
+
+# Executar
+npm start
+```
+
+### Testes
+
+```bash
+# Executar todos os testes
+npm test
+
+# Executar testes em modo watch
+npm run test:watch
+```
+
+## 📡 API Endpoints
+
+### 🔓 Endpoints Públicos
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/auth/login` | Login do usuário |
+
+### 🔒 Endpoints Protegidos (Requer Token JWT)
+
+#### Autenticação
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/auth/register` | Registrar novo usuário (apenas usuários autenticados) |
+| `GET` | `/auth/me` | Informações do usuário atual |
+
+#### Gerenciamento de Usuários
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/users` | Listar todos os usuários |
+| `POST` | `/users` | Criar novo usuário |
+
+#### Transações Financeiras
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/financial-transactions` | Criar transação |
+| `GET` | `/financial-transactions` | Listar transações do usuário |
+| `GET` | `/financial-transactions/stats` | Estatísticas financeiras |
+| `GET` | `/financial-transactions/:id` | Buscar transação específica |
+| `PUT` | `/financial-transactions/:id` | Atualizar transação |
+| `PATCH` | `/financial-transactions/:id` | Atualização parcial |
+| `DELETE` | `/financial-transactions/:id` | Deletar transação |
+
+## 🔐 Autenticação
+
+O sistema utiliza JWT (JSON Web Tokens) para autenticação. Para acessar endpoints protegidos, inclua o header:
+
+```
+Authorization: Bearer <seu-token-jwt>
+```
+
+### Exemplo de Login
+
+```bash
+curl -X POST http://localhost:3333/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "usuario@example.com", "password": "senha123"}'
+```
+
+## 💾 Modelo de Dados
+
+### User (Usuário)
+```typescript
 {
-  "valor": 1500.50,              // Number with up to 3 decimal places
-  "empresa": "Banco do Brasil",   // String, name of bank/company
-  "data": "2025-09-15T10:00:00Z", // ISO datetime string
-  "tipo": "Receita"              // String: "Receita" or "Despesa"
+  id: string;        // UUID
+  name: string;      // Nome do usuário
+  email: string;     // Email único
+  password: string;  // Senha criptografada
+  createdAt: Date;   // Data de criação
+  updatedAt: Date;   // Data de atualização
 }
 ```
 
-**Response (201):**
-```json
+### FinancialTransaction (Transação Financeira)
+```typescript
 {
-  "id": "cmfklpdba0000vplcz39cirs0",
-  "valor": 1500.5,
-  "empresa": "Banco do Brasil",
-  "data": "2025-09-15T10:00:00.000Z",
-  "tipo": "Receita",
-  "createdAt": "2025-09-15T04:05:24.259Z",
-  "updatedAt": "2025-09-15T04:05:24.259Z"
+  id: string;        // UUID
+  valor: Decimal;    // Valor da transação
+  empresa: string;   // Nome da empresa/descrição
+  data: Date;        // Data da transação
+  tipo: string;      // "Receita" ou "Despesa"
+  userId: string;    // ID do usuário proprietário
+  createdAt: Date;   // Data de criação
+  updatedAt: Date;   // Data de atualização
 }
 ```
 
-### 2. List Financial Transactions
-**GET** `/financial-transactions`
+## 🛡️ Recursos de Segurança
 
-Retrieves a paginated list of financial transactions with optional filtering.
+1. **Autenticação JWT**: Todos os endpoints sensíveis protegidos
+2. **Registro protegido**: Apenas usuários autenticados podem registrar novos usuários
+3. **Isolamento de dados**: Usuários só acessam suas próprias transações
+4. **Validação de propriedade**: Verificação automática se a transação pertence ao usuário
+5. **Hash de senhas**: Senhas criptografadas com bcrypt
+6. **Validação de entrada**: Esquemas Zod para todos os endpoints
+7. **UUIDs**: Identificadores únicos para todas as entidades
 
-**Query Parameters:**
-- `page` (optional): Page number (default: 1)
-- `limit` (optional): Items per page (default: 10, max: 100)
-- `tipo` (optional): Filter by type ("Receita" or "Despesa")
-- `empresa` (optional): Filter by company name (partial match)
-- `startDate` (optional): Filter by start date (ISO datetime)
-- `endDate` (optional): Filter by end date (ISO datetime)
-
-**Example:** `/financial-transactions?tipo=Receita&page=1&limit=5`
-
-**Response (200):**
-```json
-{
-  "transactions": [
-    {
-      "id": "cmfklpdba0000vplcz39cirs0",
-      "valor": 1500.5,
-      "empresa": "Banco do Brasil",
-      "data": "2025-09-15T10:00:00.000Z",
-      "tipo": "Receita",
-      "createdAt": "2025-09-15T04:05:24.259Z",
-      "updatedAt": "2025-09-15T04:05:24.259Z"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 2,
-    "totalPages": 1
-  }
-}
-```
-
-### 3. Get Financial Transaction by ID
-**GET** `/financial-transactions/:id`
-
-Retrieves a specific financial transaction.
-
-**Response (200):**
-```json
-{
-  "id": "cmfklpdba0000vplcz39cirs0",
-  "valor": 1500.5,
-  "empresa": "Banco do Brasil",
-  "data": "2025-09-15T10:00:00.000Z",
-  "tipo": "Receita",
-  "createdAt": "2025-09-15T04:05:24.259Z",
-  "updatedAt": "2025-09-15T04:05:24.259Z"
-}
-```
-
-### 4. Update Financial Transaction
-**PUT** `/financial-transactions/:id` or **PATCH** `/financial-transactions/:id`
-
-Updates a financial transaction. Use PUT for complete updates, PATCH for partial updates.
-
-**Request Body (all fields optional for PATCH):**
-```json
-{
-  "valor": 1600.75,
-  "empresa": "Banco do Brasil - Corrigido",
-  "data": "2025-09-15T12:00:00Z",
-  "tipo": "Receita"
-}
-```
-
-**Response (200):**
-```json
-{
-  "id": "cmfklpdba0000vplcz39cirs0",
-  "valor": 1600.75,
-  "empresa": "Banco do Brasil - Corrigido",
-  "data": "2025-09-15T10:00:00.000Z",
-  "tipo": "Receita",
-  "createdAt": "2025-09-15T04:05:24.259Z",
-  "updatedAt": "2025-09-15T04:06:55.473Z"
-}
-```
-
-### 5. Delete Financial Transaction
-**DELETE** `/financial-transactions/:id`
-
-Deletes a financial transaction.
-
-**Response (204):** Empty body
-
-### 6. Get Financial Statistics
-**GET** `/financial-transactions/stats`
-
-Retrieves financial statistics including totals and balance.
-
-**Query Parameters (optional):**
-- `empresa`: Filter by company name
-- `startDate`: Filter by start date
-- `endDate`: Filter by end date
-
-**Response (200):**
-```json
-{
-  "stats": {
-    "totalTransactions": 2,
-    "totalReceitas": {
-      "amount": 1500.5,
-      "count": 1
-    },
-    "totalDespesas": {
-      "amount": 750.125,
-      "count": 1
-    },
-    "saldo": 750.375
-  }
-}
-```
-
-## Error Responses
-
-### Validation Error (400)
-```json
-{
-  "error": "Validation error",
-  "details": [
-    {
-      "code": "too_small",
-      "minimum": 1,
-      "type": "string",
-      "inclusive": true,
-      "exact": false,
-      "message": "Empresa is required",
-      "path": ["empresa"]
-    }
-  ]
-}
-```
-
-### Not Found (404)
-```json
-{
-  "error": "Financial transaction not found"
-}
-```
-
-### Internal Server Error (500)
-```json
-{
-  "error": "Internal server error"
-}
-```
-
-## Testing Examples (PowerShell)
-
-### Create a new transaction
-```powershell
-Invoke-RestMethod -Uri "http://localhost:3333/financial-transactions" -Method POST -ContentType "application/json" -Body '{"valor": 1500.50, "empresa": "Banco do Brasil", "data": "2025-09-15T10:00:00Z", "tipo": "Receita"}'
-```
-
-### List all transactions
-```powershell
-Invoke-RestMethod -Uri "http://localhost:3333/financial-transactions" -Method GET
-```
-
-### Get statistics
-```powershell
-Invoke-RestMethod -Uri "http://localhost:3333/financial-transactions/stats" -Method GET
-```
-
-### Filter by type
-```powershell
-Invoke-RestMethod -Uri "http://localhost:3333/financial-transactions?tipo=Despesa" -Method GET
-```
-
-### Update a transaction
-```powershell
-Invoke-RestMethod -Uri "http://localhost:3333/financial-transactions/YOUR_ID_HERE" -Method PUT -ContentType "application/json" -Body '{"valor": 1600.75, "empresa": "Updated Company"}'
-```
-
-## Project Structure (MVC Pattern)
+## 📊 Estrutura do Projeto
 
 ```
-src/
-├── controllers/
-│   └── FinancialTransactionController.ts  # Business logic
-├── models/
-│   └── FinancialTransaction.ts             # Data validation and types
-├── routes/
-│   └── financialTransactionRoutes.ts       # Route definitions
-└── server.ts                               # Application entry point
+myfinance/
+├── prisma/
+│   ├── migrations/          # Migrações do banco de dados
+│   └── schema.prisma       # Schema do Prisma
+├── src/
+│   ├── controllers/        # Controladores da aplicação
+│   ├── middleware/         # Middlewares (autenticação, etc.)
+│   ├── models/            # Modelos de dados
+│   ├── routes/            # Definição das rotas
+│   ├── utils/             # Utilitários
+│   └── server.ts          # Servidor principal
+├── tests/                 # Arquivos de teste
+├── scripts/               # Scripts auxiliares
+└── docs/                  # Documentação adicional
 ```
 
-## Features
+## 🧪 Testes
 
-- ✅ Full CRUD operations (Create, Read, Update, Delete)
-- ✅ Input validation with detailed error messages
-- ✅ Pagination support
-- ✅ Advanced filtering (by type, company, date range)
-- ✅ Financial statistics and balance calculation
-- ✅ Decimal precision support (up to 3 decimal places)
-- ✅ MVC architecture pattern
-- ✅ Type-safe with TypeScript
-- ✅ Database integration with Prisma ORM
+O projeto inclui testes unitários e de integração utilizando Jest. Para executar:
+
+```bash
+# Todos os testes
+npm test
+
+# Testes específicos
+npm test -- --testNamePattern="AuthController"
+
+# Cobertura de código
+npm test -- --coverage
+```
+
+## 📚 Documentação Adicional
+
+- [SECURITY_TEST.md](./SECURITY_TEST.md) - Guia de testes de segurança
+- [AUTH_GUIDE.md](./AUTH_GUIDE.md) - Guia de autenticação
+- [MIGRATION_REPORT.md](./MIGRATION_REPORT.md) - Relatório de migrações
+
+## 🚀 Deploy
+
+### Variáveis de Ambiente Necessárias
+
+```env
+DATABASE_URL="postgresql://..."
+JWT_SECRET="sua-chave-secreta-muito-segura"
+PORT=3333
+NODE_ENV="production"
+```
+
+### Comandos de Deploy
+
+```bash
+# Build do projeto
+npm run build
+
+# Executar migrações em produção
+npx prisma migrate deploy
+
+# Iniciar aplicação
+npm start
+```
+
+## 🤝 Contribuição
+
+Como este projeto foi gerado por IA, contribuições são especialmente bem-vindas para:
+
+1. **Revisão de Código**: Identificar possíveis melhorias ou problemas
+2. **Testes Adicionais**: Expandir a cobertura de testes
+3. **Documentação**: Melhorar e expandir a documentação
+4. **Segurança**: Revisar e fortalecer aspectos de segurança
+5. **Performance**: Otimizações de performance
+
+## 📄 Licença
+
+Este projeto está sob a licença ISC.
+
+## ⚠️ Disclaimer
+
+Este código foi gerado por IA e deve ser revisado cuidadosamente antes de uso em produção. Recomenda-se:
+
+- Revisão completa do código por desenvolvedores experientes
+- Testes extensivos em ambiente de desenvolvimento
+- Auditoria de segurança
+- Validação das regras de negócio
+
+---
+
+**Desenvolvido com 🤖 por Inteligência Artificial**
