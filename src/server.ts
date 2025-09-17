@@ -21,9 +21,9 @@ app.listen({
     port: process.env.PORT ? Number(process.env.PORT) : 3333,
 }).then(() => { 
     console.log('HTTP Server Running!');
-    console.log('\n=== Authentication Endpoints (Public) ===');
-    console.log('  POST   /auth/register - Register new user');
-    console.log('  POST   /auth/login - User login');
+    console.log('\n=== Authentication Endpoints ===');
+    console.log('  POST   /auth/login - User login (Public)');
+    console.log('  POST   /auth/register - Register new user (Protected)');
     console.log('  GET    /auth/me - Get current user info (Protected)');
     console.log('\n=== User Management Endpoints (Protected) ===');
     console.log('  GET    /users - List all users');
